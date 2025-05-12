@@ -1,16 +1,16 @@
 using System.Linq;
 using System.Reflection;
-using TMPro;
 using UnityEditor;
 using UnityEditor.Localization;
 using UnityEditor.UIElements;
+using UnityEngine;
 using UnityEngine.Localization.Components;
 using UnityEngine.UIElements;
 
 namespace Common.Localization.Editor
 {
-    [CustomEditor(typeof(LocalizeStringEvent))]
-    public class LocalizeStringEventEditor : UnityEditor.Editor
+    [CustomEditor(typeof(LocalizeSpriteEvent))]
+    public class LocalizeSpriteEventEditor : UnityEditor.Editor
     {
         private PopupField<string> _tableNamePopup;
         private PopupField<string> _localeCodePopup;
@@ -33,7 +33,7 @@ namespace Common.Localization.Editor
             container.Add(horizontalLayout);
 
             // テーブル選択ドロップダウン
-            var tableNames = LocalizationEditorSettings.GetStringTableCollections().Select(v => v.name).ToList();
+            var tableNames = LocalizationEditorSettings.GetAssetTableCollections().Select(v => v.name).ToList();
             _tableNamePopup = new PopupField<string>("", tableNames, 0);
             horizontalLayout.Add(_tableNamePopup);
 
@@ -63,7 +63,7 @@ namespace Common.Localization.Editor
         {
             serializedObject.Update();
 
-            var tableCollection = LocalizationEditorSettings.GetStringTableCollection(_tableNamePopup.value);
+            var tableCollection = LocalizationEditorSettings.GetAssetTableCollection(_tableNamePopup.value);
             if (tableCollection == null)
             {
                 return;
@@ -73,8 +73,8 @@ namespace Common.Localization.Editor
             Undo.RecordObject(sharedData, "Create new entry and set default");
 
             // テーブルを指定
-            var localizeStringEvent = (LocalizeStringEvent) target;
-            localizeStringEvent.SetTable(_tableNamePopup.value);
+            var localizeSpriteEvent = (LocalizeSpriteEvent) target;
+            localizeSpriteEvent.AssetReference.TableReference = _tableNamePopup.value;
 
             // 新規Entryを作成して指定
             var entry = sharedData.AddKey();
@@ -83,27 +83,27 @@ namespace Common.Localization.Editor
             _raiseTableEntryAddedMethodInfo ??= LocalizationEditorSettings.EditorEvents.GetType()
                 .GetMethod("RaiseTableEntryAdded", BindingFlags.NonPublic | BindingFlags.Instance);
             _raiseTableEntryAddedMethodInfo?.Invoke(LocalizationEditorSettings.EditorEvents, new object[] { tableCollection, entry });
-            localizeStringEvent.SetEntry(entry.Key);
+            localizeSpriteEvent.AssetReference.TableEntryReference = entry.Key;
 
-            // 紐づくTextMeshProUGUIの値を取得
-            var defaultText = string.Empty;
-            var persistentEventCount = localizeStringEvent.OnUpdateString.GetPersistentEventCount();
+            // 紐づくImageの値を取得
+            var defaultSpriteGuid = string.Empty;
+            var persistentEventCount = localizeSpriteEvent.OnUpdateAsset.GetPersistentEventCount();
             for (var i = 0; i < persistentEventCount; i++)
             {
-                var persistentTarget = localizeStringEvent.OnUpdateString.GetPersistentTarget(i);
-                if (persistentTarget is TextMeshProUGUI textComponent)
+                var persistentTarget = localizeSpriteEvent.OnUpdateAsset.GetPersistentTarget(i);
+                if (persistentTarget is UnityEngine.UI.Image imageComponent)
                 {
-                    defaultText = textComponent.text;
+                    defaultSpriteGuid = AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(imageComponent.sprite));
                     break;
                 }
             }
 
             // Entryに初期値を指定して登録
-            var targetLanguageStringTable = tableCollection.StringTables
+            var targetLanguageAssetTable = tableCollection.AssetTables
                 .FirstOrDefault(v => v.LocaleIdentifier.Code == _localeCodePopup.value);
-            if (targetLanguageStringTable != null)
+            if (targetLanguageAssetTable != null)
             {
-                targetLanguageStringTable.AddEntry(entry.Id, defaultText);
+                targetLanguageAssetTable.AddEntry(entry.Id, defaultSpriteGuid);
                 _raiseTableEntryModifiedMethodInfo ??= LocalizationEditorSettings.EditorEvents.GetType()
                     .GetMethod("RaiseTableEntryModified", BindingFlags.NonPublic | BindingFlags.Instance);
                 _raiseTableEntryModifiedMethodInfo?.Invoke(LocalizationEditorSettings.EditorEvents,
@@ -111,7 +111,7 @@ namespace Common.Localization.Editor
             }
 
             serializedObject.ApplyModifiedProperties();
-            EditorUtility.SetDirty(localizeStringEvent);
+            EditorUtility.SetDirty(localizeSpriteEvent);
         }
     }
 }
