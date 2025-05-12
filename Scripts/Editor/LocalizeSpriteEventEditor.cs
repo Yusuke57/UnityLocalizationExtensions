@@ -42,10 +42,10 @@ namespace Common.Localization.Editor
             _localeCodePopup = new PopupField<string>("", localeCodes, 0);
             horizontalLayout.Add(_localeCodePopup);
 
-            // 新規Entry作成ボタン
+            // 新規Entry作成 & デフォルト値指定ボタン
             var createNewEntryButton = new Button(CreateNewEntryAndSetDefault)
             {
-                text = "Create New Entry and Set Default",
+                text = "Create Entry (If Needed) and Set Default",
                 style =
                 {
                     flexGrow = 1
@@ -70,22 +70,30 @@ namespace Common.Localization.Editor
             }
 
             var sharedData = tableCollection.SharedData;
-            Undo.RecordObject(sharedData, "Create new entry and set default");
+            Undo.RecordObject(sharedData, "Create Entry (If Needed) and Set Default");
 
             // テーブルを指定
             var localizeSpriteEvent = (LocalizeSpriteEvent) target;
             localizeSpriteEvent.AssetReference.TableReference = _tableNamePopup.value;
 
-            // 新規Entryを作成して指定
-            var entry = sharedData.AddKey();
-            EditorUtility.SetDirty(sharedData);
+            // 既にEntryの指定があればそれを、なければ新規Entryを作成して取得
+            var entryKey = localizeSpriteEvent.AssetReference.TableEntryReference.Key;
+            var hasEntry = !string.IsNullOrEmpty(entryKey);
+            var entry = hasEntry
+                ? sharedData.GetEntry(entryKey)
+                : sharedData.AddKey();
 
-            _raiseTableEntryAddedMethodInfo ??= LocalizationEditorSettings.EditorEvents.GetType()
-                .GetMethod("RaiseTableEntryAdded", BindingFlags.NonPublic | BindingFlags.Instance);
-            _raiseTableEntryAddedMethodInfo?.Invoke(LocalizationEditorSettings.EditorEvents, new object[] { tableCollection, entry });
-            localizeSpriteEvent.AssetReference.TableEntryReference = entry.Key;
+            if (!hasEntry)
+            {
+                // 作成したものを更新通知してからTableEntryReferenceに指定
+                EditorUtility.SetDirty(sharedData);
+                _raiseTableEntryAddedMethodInfo ??= LocalizationEditorSettings.EditorEvents.GetType()
+                    .GetMethod("RaiseTableEntryAdded", BindingFlags.NonPublic | BindingFlags.Instance);
+                _raiseTableEntryAddedMethodInfo?.Invoke(LocalizationEditorSettings.EditorEvents, new object[] { tableCollection, entry });
+                localizeSpriteEvent.AssetReference.TableEntryReference = entry.Key;
+            }
 
-            // 紐づくImageの値を取得
+            // 紐づくImage.spriteのGUIDを取得
             var defaultSpriteGuid = string.Empty;
             var persistentEventCount = localizeSpriteEvent.OnUpdateAsset.GetPersistentEventCount();
             for (var i = 0; i < persistentEventCount; i++)
