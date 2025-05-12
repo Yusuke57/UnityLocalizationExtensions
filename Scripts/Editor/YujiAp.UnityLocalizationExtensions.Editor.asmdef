@@ -1,0 +1,22 @@
+{
+    "name": "YujiAp.UnityLocalizationExtensions.Editor",
+    "rootNamespace": "",
+    "references": [
+        "Unity.Localization",
+        "Unity.Localization.Editor",
+        "Unity.TextMeshPro"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [
+        "USE_UNITY_LOCALIZATION"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
