@@ -40,6 +40,15 @@ namespace Common.Localization.Editor
                 return;
             }
 
+            // ドロップダウンの有効/無効を更新
+            _targetTableDropdown?.SetEnabled(GoogleSheetsTableCollections.Any());
+
+            // ボタンの有効/無効を更新
+            foreach (var button in _buttons)
+            {
+                button.SetEnabled(_targetTables.Count > 0);
+            }
+
             // 対象Spreadsheet選択ドロップダウンが描画済みであれば何もしない
             // MEMO: Unityエディタをディスプレイ移動した時など、描画が消える場合があるため毎フレーム確認しておく
             if (localizationParent.Q(TargetTableDropdownName) != null)
@@ -284,15 +293,6 @@ namespace Common.Localization.Editor
 
         private static void OnTargetTableChanged()
         {
-            // ドロップダウンの有効/無効を更新
-            _targetTableDropdown.SetEnabled(GoogleSheetsTableCollections.Any());
-
-            // ボタンの有効/無効を更新
-            foreach (var button in _buttons)
-            {
-                button.SetEnabled(_targetTables.Count > 0);
-            }
-
             // ドロップダウンのテキスト更新
             string text;
             if (_targetTables.Count == 0)
