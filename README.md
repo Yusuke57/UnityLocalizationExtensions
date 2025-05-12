@@ -25,6 +25,9 @@ PackageManagerの+ボタンから「Install package from git URL...」を選択�
 
 一部の機能だけ必要な場合は、ダウンロードしてファイルをUnityプロジェクトにインポートしてもOKです
 
-## 注意
+## その他
 Localizationパッケージを使い始めたばかりなので、機能不足や問題点が見つかり次第アップデートするかもしれません  
 Unity6000.0で動作確認済み
+
+LocalizationとSpreadsheetの連携方法はこちらにまとめました  
+https://unity-yuji.xyz/localization-spreadsheet/
