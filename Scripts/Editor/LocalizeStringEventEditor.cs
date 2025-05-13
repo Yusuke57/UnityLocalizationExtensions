@@ -4,6 +4,7 @@ using TMPro;
 using UnityEditor;
 using UnityEditor.Localization;
 using UnityEditor.UIElements;
+using UnityEngine;
 using UnityEngine.Localization.Components;
 using UnityEngine.UIElements;
 
@@ -17,6 +18,9 @@ namespace Common.Localization.Editor
 
         private MethodInfo _raiseTableEntryAddedMethodInfo;
         private MethodInfo _raiseTableEntryModifiedMethodInfo;
+
+        private static string TargetTableIndexPrefsKey => $"{Application.dataPath}.LocalizeStringEvent.TargetTableIndex";
+        private static string TargetLocaleIndexPrefsKey => $"{Application.dataPath}.LocalizeStringEvent.TargetLocaleIndex";
 
         public override VisualElement CreateInspectorGUI()
         {
@@ -34,12 +38,22 @@ namespace Common.Localization.Editor
 
             // テーブル選択ドロップダウン
             var tableNames = LocalizationEditorSettings.GetStringTableCollections().Select(v => v.name).ToList();
-            _tableNamePopup = new PopupField<string>("", tableNames, 0);
+            _tableNamePopup = new PopupField<string>("", tableNames, EditorPrefs.GetInt(TargetTableIndexPrefsKey, 0));
+            _tableNamePopup.RegisterValueChangedCallback(ev =>
+            {
+                var newIndex = Mathf.Max(tableNames.IndexOf(ev.newValue), 0);
+                EditorPrefs.SetInt(TargetTableIndexPrefsKey, newIndex);
+            });
             horizontalLayout.Add(_tableNamePopup);
 
             // 初期値指定言語選択ドロップダウン
             var localeCodes = LocalizationEditorSettings.GetLocales().Select(v => v.Identifier.Code).ToList();
-            _localeCodePopup = new PopupField<string>("", localeCodes, 0);
+            _localeCodePopup = new PopupField<string>("", localeCodes, EditorPrefs.GetInt(TargetLocaleIndexPrefsKey, 0));
+            _localeCodePopup.RegisterValueChangedCallback(ev =>
+            {
+                var newIndex = Mathf.Max(localeCodes.IndexOf(ev.newValue), 0);
+                EditorPrefs.SetInt(TargetLocaleIndexPrefsKey, newIndex);
+            });
             horizontalLayout.Add(_localeCodePopup);
 
             // 新規Entry作成 & デフォルト値指定ボタン
