@@ -18,8 +18,9 @@ namespace Common.Localization.Editor
         private static readonly HashSet<string> _targetTables = new();
         private static readonly List<EditorToolbarButton> _buttons = new();
 
-        private const string TargetTablesPrefsKey = "LocalizationToolbar.TargetTables";
         private const string TargetTableDropdownName = "TargetTableDropdown";
+
+        private static string TargetTablesPrefsKey => $"{Application.dataPath}.LocalizationToolbar.TargetTables";
 
         private static List<StringTableCollection> GoogleSheetsTableCollections =>
             LocalizationEditorSettings.GetStringTableCollections()
