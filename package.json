@@ -1,7 +1,7 @@
 {
   "name": "com.yujiap.unity-localization-extensions",
   "displayName": "Unity Localization Extensions",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "unity": "6.0",
   "description": "Editor tools that enhance the usability of Localization package",
   "author": {
