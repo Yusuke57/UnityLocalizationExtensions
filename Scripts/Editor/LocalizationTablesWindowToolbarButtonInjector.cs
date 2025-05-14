@@ -12,9 +12,9 @@ namespace YujiAp.UnityLocalizationExtensions.Editor
     {
         private static readonly HashSet<EditorWindow> _processedWindows = new();
         private static EditorWindow _lastFocusedWindow;
-        private static FieldInfo _selectionChangedField;
+        private static FieldInfo _selectionChangedFieldInfo;
 
-        private static FieldInfo SelectionChangedField => _selectionChangedField
+        private static FieldInfo SelectionChangedField => _selectionChangedFieldInfo
             ??= typeof(LocalizationTablesWindow).GetField("m_SelectionChanged", BindingFlags.Instance | BindingFlags.NonPublic);
 
         private const string ReloadButtonName = "ReloadButton";
