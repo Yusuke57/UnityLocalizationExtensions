@@ -3,7 +3,7 @@ UnityのLocalizationパッケージをより便利にするエディタ拡張
 Editor extensions to make Unity's Localization package more convenient
 
 ## 詳細
-1. GoogleSpreadsheet連携をした際に、Unityエディタ上部に追加したボタンで **テーブルの一括Push/Pull** ができる  
+1. GoogleSpreadsheet連携をした際に、Unityエディタ上部に追加したボタンで **テーブル一括Push/Pull** ができる  
 **対象のGoogleSpreadsheetを開く** ボタンも一緒に追加
 2. LocalizeStringEventとLocalizeSpriteEventのコンポーネントに対して、1ボタンで以下を行える
    - Entryが指定されていなければ、**指定テーブルにEntryを新規作成**
