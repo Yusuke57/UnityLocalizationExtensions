@@ -103,7 +103,7 @@ namespace YujiAp.UnityLocalizationExtensions.Editor
                 _raiseTableEntryAddedMethodInfo ??= LocalizationEditorSettings.EditorEvents.GetType()
                     .GetMethod("RaiseTableEntryAdded", BindingFlags.NonPublic | BindingFlags.Instance);
                 _raiseTableEntryAddedMethodInfo?.Invoke(LocalizationEditorSettings.EditorEvents, new object[] { tableCollection, entry });
-                localizeSpriteEvent.AssetReference.TableEntryReference = entry.Key;
+                localizeSpriteEvent.AssetReference.TableEntryReference = entry.Id;
             }
 
             // 紐づくImage.spriteのGUIDを取得
