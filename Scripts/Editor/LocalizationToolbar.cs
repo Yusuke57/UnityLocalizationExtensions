@@ -10,7 +10,7 @@ using UnityEditor.Toolbars;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace Common.Localization.Editor
+namespace YujiAp.UnityLocalizationExtensions.Editor
 {
     public static class LocalizationToolbar
     {

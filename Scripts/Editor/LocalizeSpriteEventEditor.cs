@@ -7,7 +7,7 @@ using UnityEngine;
 using UnityEngine.Localization.Components;
 using UnityEngine.UIElements;
 
-namespace Common.Localization.Editor
+namespace YujiAp.UnityLocalizationExtensions.Editor
 {
     [CustomEditor(typeof(LocalizeSpriteEvent))]
     public class LocalizeSpriteEventEditor : UnityEditor.Editor

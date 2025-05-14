@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using LocalizationTablesWindow = UnityEditor.Localization.UI.LocalizationTablesWindow;
 
-namespace Common.Localization.Editor
+namespace YujiAp.UnityLocalizationExtensions.Editor
 {
     public static class LocalizationTablesWindowToolbarButtonInjector
     {

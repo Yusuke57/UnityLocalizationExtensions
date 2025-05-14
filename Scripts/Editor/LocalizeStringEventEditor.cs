@@ -8,7 +8,7 @@ using UnityEngine;
 using UnityEngine.Localization.Components;
 using UnityEngine.UIElements;
 
-namespace Common.Localization.Editor
+namespace YujiAp.UnityLocalizationExtensions.Editor
 {
     [CustomEditor(typeof(LocalizeStringEvent))]
     public class LocalizeStringEventEditor : UnityEditor.Editor
