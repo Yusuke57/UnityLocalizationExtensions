@@ -17,7 +17,6 @@ namespace YujiAp.UnityLocalizationExtensions.Editor
         private PopupField<string> _localeCodePopup;
 
         private MethodInfo _raiseTableEntryAddedMethodInfo;
-        private MethodInfo _raiseTableEntryModifiedMethodInfo;
 
         private static string TargetTableIndexPrefsKey => $"{Application.dataPath}.LocalizeStringEvent.TargetTableIndex";
         private static string TargetLocaleIndexPrefsKey => $"{Application.dataPath}.LocalizeStringEvent.TargetLocaleIndex";
@@ -126,10 +125,7 @@ namespace YujiAp.UnityLocalizationExtensions.Editor
             if (targetLanguageStringTable != null)
             {
                 targetLanguageStringTable.AddEntry(entry.Id, defaultText);
-                _raiseTableEntryModifiedMethodInfo ??= LocalizationEditorSettings.EditorEvents.GetType()
-                    .GetMethod("RaiseTableEntryModified", BindingFlags.NonPublic | BindingFlags.Instance);
-                _raiseTableEntryModifiedMethodInfo?.Invoke(LocalizationEditorSettings.EditorEvents,
-                    new object[] { sharedData.GetEntry(entry.Id) });
+                LocalizationEditorSettings.EditorEvents.RaiseCollectionModified(null, tableCollection);
             }
 
             serializedObject.ApplyModifiedProperties();
