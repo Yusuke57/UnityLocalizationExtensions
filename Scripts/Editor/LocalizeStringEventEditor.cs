@@ -103,7 +103,7 @@ namespace YujiAp.UnityLocalizationExtensions.Editor
                 _raiseTableEntryAddedMethodInfo ??= LocalizationEditorSettings.EditorEvents.GetType()
                     .GetMethod("RaiseTableEntryAdded", BindingFlags.NonPublic | BindingFlags.Instance);
                 _raiseTableEntryAddedMethodInfo?.Invoke(LocalizationEditorSettings.EditorEvents, new object[] { tableCollection, entry });
-                localizeStringEvent.SetEntry(entry.Key);
+                localizeStringEvent.StringReference.TableEntryReference = entry.Id;
             }
 
             // 紐づくTextMeshProUGUI.textの文字列を取得
