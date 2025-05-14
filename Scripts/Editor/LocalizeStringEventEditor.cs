@@ -17,6 +17,8 @@ namespace YujiAp.UnityLocalizationExtensions.Editor
         private PopupField<string> _localeCodePopup;
 
         private MethodInfo _raiseTableEntryAddedMethodInfo;
+        private MethodInfo RaiseTableEntryModifiedMethodInfo => _raiseTableEntryAddedMethodInfo
+            ??= LocalizationEditorSettings.EditorEvents.GetType().GetMethod("RaiseTableEntryAdded", BindingFlags.NonPublic | BindingFlags.Instance);
 
         private static string TargetTableIndexPrefsKey => $"{Application.dataPath}.LocalizeStringEvent.TargetTableIndex";
         private static string TargetLocaleIndexPrefsKey => $"{Application.dataPath}.LocalizeStringEvent.TargetLocaleIndex";
@@ -100,9 +102,7 @@ namespace YujiAp.UnityLocalizationExtensions.Editor
             {
                 // 作成したものを更新通知してからTableEntryReferenceに指定
                 EditorUtility.SetDirty(sharedData);
-                _raiseTableEntryAddedMethodInfo ??= LocalizationEditorSettings.EditorEvents.GetType()
-                    .GetMethod("RaiseTableEntryAdded", BindingFlags.NonPublic | BindingFlags.Instance);
-                _raiseTableEntryAddedMethodInfo?.Invoke(LocalizationEditorSettings.EditorEvents, new object[] { tableCollection, entry });
+                RaiseTableEntryModifiedMethodInfo?.Invoke(LocalizationEditorSettings.EditorEvents, new object[] { tableCollection, entry });
                 localizeStringEvent.StringReference.TableEntryReference = entry.Id;
             }
 
