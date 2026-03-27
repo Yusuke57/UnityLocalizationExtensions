@@ -35,7 +35,7 @@ namespace YujiAp.UnityLocalizationExtensions.Editor
 
         private static void OnUpdate()
         {
-            var localizationParent = GetToolbar()?.Q("ToolbarZoneRightAlign");
+            var localizationParent = GetToolbarRightZone();
             if (localizationParent == null)
             {
                 return;
@@ -77,7 +77,9 @@ namespace YujiAp.UnityLocalizationExtensions.Editor
             group.Add(label);
 
             // 対象のTableを選択するドロップダウン
-            group.Add(CreateTargetTableDropdown());
+            var dropdown = CreateTargetTableDropdown();
+            ApplyToolbarOverlayStyle(dropdown);
+            group.Add(dropdown);
 
             // Open
             var openButton = new EditorToolbarButton(OpenSpreadsheet)
@@ -86,6 +88,7 @@ namespace YujiAp.UnityLocalizationExtensions.Editor
                 icon = (Texture2D) EditorGUIUtility.IconContent("d_Linked").image,
                 tooltip = "Open spreadsheet",
             };
+            ApplyToolbarOverlayStyle(openButton);
             group.Add(openButton);
             _buttons.Add(openButton);
 
@@ -96,6 +99,7 @@ namespace YujiAp.UnityLocalizationExtensions.Editor
                 icon = (Texture2D) EditorGUIUtility.IconContent("CollabPull").image,
                 tooltip = "Pull from spreadsheets all",
             };
+            ApplyToolbarOverlayStyle(pullButton);
             group.Add(pullButton);
             _buttons.Add(pullButton);
 
@@ -106,28 +110,67 @@ namespace YujiAp.UnityLocalizationExtensions.Editor
                 icon = (Texture2D) EditorGUIUtility.IconContent("CollabPush").image,
                 tooltip = "Push to spreadsheets all",
             };
+            ApplyToolbarOverlayStyle(pushButton);
             group.Add(pushButton);
             _buttons.Add(pushButton);
             
             OnTargetTableChanged();
         }
 
+        /// <summary>
+        /// ツールバーの VisualElement を取得する。
+        /// Unity 6000.3+: MainToolbarWindow の rootVisualElement を使用。
+        /// Unity 6000.1: Toolbar (HostView) の m_Root を使用。
+        /// </summary>
         private static VisualElement GetToolbar()
         {
-            var toolbarType = Type.GetType("UnityEditor.Toolbar,UnityEditor")!;
+            var editorAssembly = typeof(UnityEditor.Editor).Assembly;
 
-            var getField = toolbarType.GetField("get", BindingFlags.Static | BindingFlags.Public);
-            var getValue = getField?.GetValue(null);
+#if UNITY_6000_3_OR_NEWER
+            var mainToolbarWindowType = editorAssembly.GetType("UnityEditor.MainToolbarWindow");
+            if (mainToolbarWindowType != null)
+            {
+                var instances = Resources.FindObjectsOfTypeAll(mainToolbarWindowType);
+                if (instances.Length > 0 && instances[0] is EditorWindow toolbarWindow)
+                {
+                    return toolbarWindow.rootVisualElement;
+                }
+            }
+#else
+            var toolbarType = editorAssembly.GetType("UnityEditor.Toolbar");
+            if (toolbarType != null)
+            {
+                var toolbarInstances = Resources.FindObjectsOfTypeAll(toolbarType);
+                if (toolbarInstances.Length > 0)
+                {
+                    var rootField = toolbarType.GetField("m_Root", BindingFlags.NonPublic | BindingFlags.Instance);
+                    return rootField?.GetValue(toolbarInstances[0]) as VisualElement;
+                }
+            }
+#endif
+            return null;
+        }
 
-            var windowBackendProperty = toolbarType.GetProperty("windowBackend", BindingFlags.Instance | BindingFlags.NonPublic);
-            var windowBackendValue = windowBackendProperty?.GetValue(getValue);
+        /// <summary>
+        /// ツールバーの右側ゾーンを取得する。
+        /// </summary>
+        private static VisualElement GetToolbarRightZone()
+        {
+            var toolbar = GetToolbar();
+            if (toolbar == null) return null;
 
-            var iWindowBackendType = Type.GetType("UnityEditor.IWindowBackend,UnityEditor")!;
-
-            var visualTreeProperty = iWindowBackendType.GetProperty("visualTree", BindingFlags.Instance | BindingFlags.Public);
-            var visualTreeValue = visualTreeProperty?.GetValue(windowBackendValue);
-
-            return visualTreeValue as VisualElement;
+#if UNITY_6000_3_OR_NEWER
+            // overlay-toolbar__top 内の ContainerSection: [0]=左, [1]=中央, [2]=右
+            var overlayContainer = toolbar.Q("overlay-toolbar__top");
+            if (overlayContainer != null)
+            {
+                var sections = overlayContainer.Children().ToList();
+                if (sections.Count >= 3) return sections[2];
+            }
+            return null;
+#else
+            return toolbar.Q("ToolbarZoneRightAlign");
+#endif
         }
 
         private static VisualElement CreateGroup()
@@ -145,6 +188,10 @@ namespace YujiAp.UnityLocalizationExtensions.Editor
                     borderBottomRightRadius = 2,
                     borderTopLeftRadius = 2,
                     borderTopRightRadius = 2,
+#if UNITY_6000_3_OR_NEWER
+                    alignSelf = Align.Center,
+                    alignItems = Align.Center,
+#endif
                 }
             };
 
@@ -315,5 +362,27 @@ namespace YujiAp.UnityLocalizationExtensions.Editor
 
             _targetTableDropdown.text = text;
         }
+
+#if UNITY_6000_3_OR_NEWER
+        /// <summary>
+        /// ツールバー要素にOverlayToolbar相当のスタイルを適用する
+        /// </summary>
+        private static void ApplyToolbarOverlayStyle(VisualElement element)
+        {
+            if (element is EditorToolbarButton or EditorToolbarDropdown)
+            {
+                element.style.flexDirection = FlexDirection.Row;
+                element.style.alignItems = Align.Center;
+            }
+
+            element.Query(className: "unity-editor-toolbar-element__icon").ForEach(icon =>
+            {
+                icon.style.width = 16;
+                icon.style.height = 16;
+            });
+        }
+#else
+        private static void ApplyToolbarOverlayStyle(VisualElement element) { }
+#endif
     }
 }
