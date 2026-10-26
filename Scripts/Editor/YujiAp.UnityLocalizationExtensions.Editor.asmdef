@@ -14,7 +14,15 @@
     "overrideReferences": false,
     "precompiledReferences": [],
     "autoReferenced": true,
-    "defineConstraints": [],
-    "versionDefines": [],
+    "defineConstraints": [
+        "YUJIAP_UNITY_LOCALIZATION"
+    ],
+    "versionDefines": [
+        {
+            "name": "com.unity.localization",
+            "expression": "1.0.0",
+            "define": "YUJIAP_UNITY_LOCALIZATION"
+        }
+    ],
     "noEngineReferences": false
 }
